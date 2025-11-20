@@ -6,6 +6,7 @@
 
 - [Homebrewのtapの仕組み](#homebrewのtapの仕組み)
 - [リポジトリ構成](#リポジトリ構成)
+- [プライベートリポジトリの扱い](#プライベートリポジトリの扱い)
 - [新しいツールの追加](#新しいツールの追加)
 - [既存ツールの更新](#既存ツールの更新)
 - [便利なコマンド集](#便利なコマンド集)
@@ -87,6 +88,230 @@ class ToolName < Formula
   end
 end
 ```
+
+---
+
+## プライベートリポジトリの扱い
+
+Homebrewのtapでプライベートリポジトリを使用する場合の考慮事項を説明します。
+
+### パターン別の対応方法
+
+#### 🟢 パターンA: すべてPublic（推奨・最も簡単）
+
+```
+✅ homebrew-tap リポジトリ: Public
+✅ ツールのソースコード: Public
+```
+
+**メリット**:
+- 設定不要、誰でもインストール可能
+- `brew install yugo-ibuki/tap/tool-name` だけで動作
+- メンテナンスが最も簡単
+
+**デメリット**:
+- コードが公開される
+
+**使用例**: オープンソースツール、公開したいCLIツール
+
+---
+
+#### 🟡 パターンB: tapはPublic、ソースはPrivate
+
+```
+✅ homebrew-tap リポジトリ: Public
+🔒 ツールのソースコード: Private
+```
+
+**メリット**:
+- Formulaは公開、ソースコードは非公開
+- 一定の条件下で利用可能
+
+**デメリット**:
+- ユーザーに認証設定が必要
+- インストール時にGitHub Personal Access Tokenが必要
+- 配布が複雑になる
+
+**必要な設定**:
+
+1. **GitHub Personal Access Tokenの作成**
+   - GitHub Settings → Developer settings → Personal access tokens
+   - `repo` スコープを付与
+
+2. **Formulaファイルの調整**
+   ```ruby
+   class ToolName < Formula
+     desc "Private tool"
+     homepage "https://github.com/yugo-ibuki/tool-name"
+     url "https://github.com/yugo-ibuki/tool-name/archive/refs/tags/v1.0.0.tar.gz"
+     sha256 "SHA256ハッシュ値"
+     license "MIT"
+
+     depends_on "go" => :build
+
+     def install
+       # GitHub認証が必要な旨をユーザーに通知
+       ohai "This formula requires GitHub authentication"
+       system "go", "build", *std_go_args(ldflags: "-s -w")
+     end
+
+     def caveats
+       <<~EOS
+         This formula installs from a private repository.
+         You need to configure GitHub authentication:
+
+         export HOMEBREW_GITHUB_API_TOKEN=your_github_token
+       EOS
+     end
+   end
+   ```
+
+3. **ユーザー側の設定**
+   ```bash
+   # 環境変数にトークンを設定
+   export HOMEBREW_GITHUB_API_TOKEN=ghp_xxxxxxxxxxxx
+
+   # または ~/.zshrc / ~/.bashrc に追加
+   echo 'export HOMEBREW_GITHUB_API_TOKEN=ghp_xxxxxxxxxxxx' >> ~/.zshrc
+
+   # インストール
+   brew install yugo-ibuki/tap/tool-name
+   ```
+
+**制限事項**:
+- タグ付きリリースのtarballへのアクセスに認証が必要
+- SHA256の取得も認証が必要
+  ```bash
+  curl -sL -H "Authorization: token $GITHUB_TOKEN" \
+    https://github.com/yugo-ibuki/private-repo/archive/refs/tags/v1.0.0.tar.gz | \
+    shasum -a 256
+  ```
+
+---
+
+#### 🔴 パターンC: 両方Private（企業内利用）
+
+```
+🔒 homebrew-tap リポジトリ: Private
+🔒 ツールのソースコード: Private
+```
+
+**メリット**:
+- 完全にプライベート
+- 企業内ツール配布に最適
+
+**デメリット**:
+- 一般公開できない
+- 複雑な認証設定が必要
+
+**必要な設定**:
+
+1. **プライベートtapの追加**
+   ```bash
+   # 認証付きでtapを追加
+   brew tap yugo-ibuki/tap https://github.com/yugo-ibuki/homebrew-tap.git
+   ```
+
+2. **Git認証の設定**
+   ```bash
+   # SSH認証（推奨）
+   git config --global url."git@github.com:".insteadOf "https://github.com/"
+
+   # または HTTPS + Personal Access Token
+   git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+   ```
+
+3. **Homebrew環境変数**
+   ```bash
+   export HOMEBREW_GITHUB_API_TOKEN=your_token
+   ```
+
+**企業向けの推奨設定**:
+```bash
+# ~/.zshrc または ~/.bashrc に追加
+export HOMEBREW_GITHUB_API_TOKEN=ghp_xxxxxxxxxxxx
+
+# SSH鍵の設定（推奨）
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+```
+
+---
+
+### 推奨される使い分け
+
+| 用途 | tap | ソースコード | パターン |
+|------|-----|------------|---------|
+| オープンソースツール | Public | Public | 🟢 A |
+| 個人用ツール（公開したくない） | Public | Private | 🟡 B |
+| 企業内ツール | Private | Private | 🔴 C |
+| 商用ツール（制限配布） | Public | Private | 🟡 B |
+
+### 現実的なアドバイス
+
+#### オープンソース化を検討する場合
+
+プライベートリポジトリを使うよりも、**可能であればPublicにすることを推奨**します：
+
+**理由**:
+- ✅ Homebrewの本来の使い方に沿っている
+- ✅ ユーザーが認証設定不要で簡単にインストール可能
+- ✅ コミュニティからのフィードバックを得られる
+- ✅ ポートフォリオとして公開できる
+
+**公開したくない部分がある場合の対処**:
+- 設定ファイルのテンプレートのみ公開
+- 秘密情報は環境変数で管理
+- `.env.example` を用意してドキュメント化
+
+#### どうしてもPrivateにする必要がある場合
+
+**パターンB（tapはPublic、ソースはPrivate）の改善策**:
+
+1. **ビルド済みバイナリの配布**
+   ```ruby
+   class ToolName < Formula
+     desc "Private tool"
+     homepage "https://github.com/yugo-ibuki/tool-name"
+
+     on_macos do
+       if Hardware::CPU.arm?
+         url "https://github.com/yugo-ibuki/tool-name/releases/download/v1.0.0/tool-name-darwin-arm64.tar.gz"
+         sha256 "arm64_hash"
+       else
+         url "https://github.com/yugo-ibuki/tool-name/releases/download/v1.0.0/tool-name-darwin-amd64.tar.gz"
+         sha256 "amd64_hash"
+       end
+     end
+
+     def install
+       bin.install "tool-name"
+     end
+   end
+   ```
+
+2. **GitHub Releasesでビルド済みバイナリを配布**
+   - ソースコードはPrivate
+   - Releasesのアセット（バイナリ）だけPublicに設定可能
+   - CI/CDでクロスコンパイル
+
+---
+
+### まとめ
+
+```
+プライベートリポジトリの利用可否:
+├─ tap自体          → Public推奨（Privateも可能だが複雑）
+└─ ソースコード      → Public推奨（Privateは認証が必要）
+
+推奨順:
+1. 🥇 両方Public        → 最も簡単、推奨
+2. 🥈 ビルド済みバイナリ配布 → Privateソースでも配布可能
+3. 🥉 tapはPublic、ソースPrivate → 認証必要だが可能
+4.    両方Private       → 企業内利用のみ
+```
+
+**一般公開ツールの場合**: **パターンA（両方Public）を強く推奨**します。
 
 ---
 
