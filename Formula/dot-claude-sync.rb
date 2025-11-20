@@ -9,6 +9,7 @@ class DotClaudeSync < Formula
 
   def install
     system "go", "build", *std_go_args(ldflags: "-s -w")
+    system "go", "build", *std_go_args(ldflags: "-s -w", output: bin/"dcs"), "./cmd/dcs"
   end
 
   test do
