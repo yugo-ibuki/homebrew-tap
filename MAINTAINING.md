@@ -74,10 +74,10 @@ class ToolName < Formula
   desc "ツールの簡潔な説明"
   homepage "https://github.com/yugo-ibuki/tool-name"
   url "https://github.com/yugo-ibuki/tool-name/archive/refs/tags/v1.0.0.tar.gz"
-  sha256 "SHA256ハッシュ値"
+  sha256 "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
   license "MIT"
 
-  depends_on "go" => :build  # ビルド時の依存関係
+  depends_on "go" => :build # ビルド時の依存関係
 
   def install
     system "go", "build", *std_go_args(ldflags: "-s -w")
@@ -140,30 +140,30 @@ Homebrewのtapでプライベートリポジトリを使用する場合の考慮
 
 2. **Formulaファイルの調整**
    ```ruby
-   class ToolName < Formula
-     desc "Private tool"
-     homepage "https://github.com/yugo-ibuki/tool-name"
-     url "https://github.com/yugo-ibuki/tool-name/archive/refs/tags/v1.0.0.tar.gz"
-     sha256 "SHA256ハッシュ値"
-     license "MIT"
+class ToolName < Formula
+  desc "Private tool"
+  homepage "https://github.com/yugo-ibuki/tool-name"
+  url "https://github.com/yugo-ibuki/tool-name/archive/refs/tags/v1.0.0.tar.gz"
+  sha256 "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  license "MIT"
 
-     depends_on "go" => :build
+  depends_on "go" => :build
 
-     def install
-       # GitHub認証が必要な旨をユーザーに通知
-       ohai "This formula requires GitHub authentication"
-       system "go", "build", *std_go_args(ldflags: "-s -w")
-     end
+  def install
+    # GitHub認証が必要な旨をユーザーに通知
+    ohai "This formula requires GitHub authentication"
+    system "go", "build", *std_go_args(ldflags: "-s -w")
+  end
 
-     def caveats
-       <<~EOS
-         This formula installs from a private repository.
-         You need to configure GitHub authentication:
+  def caveats
+    <<~EOS
+      This formula installs from a private repository.
+      You need to configure GitHub authentication:
 
-         export HOMEBREW_GITHUB_API_TOKEN=your_github_token
-       EOS
-     end
-   end
+      export HOMEBREW_GITHUB_API_TOKEN=your_github_token
+    EOS
+  end
+end
    ```
 
 3. **ユーザー側の設定**
@@ -270,24 +270,24 @@ ssh-add ~/.ssh/id_ed25519
 
 1. **ビルド済みバイナリの配布**
    ```ruby
-   class ToolName < Formula
-     desc "Private tool"
-     homepage "https://github.com/yugo-ibuki/tool-name"
+class ToolName < Formula
+  desc "Private tool"
+  homepage "https://github.com/yugo-ibuki/tool-name"
 
-     on_macos do
-       if Hardware::CPU.arm?
-         url "https://github.com/yugo-ibuki/tool-name/releases/download/v1.0.0/tool-name-darwin-arm64.tar.gz"
-         sha256 "arm64_hash"
-       else
-         url "https://github.com/yugo-ibuki/tool-name/releases/download/v1.0.0/tool-name-darwin-amd64.tar.gz"
-         sha256 "amd64_hash"
-       end
-     end
+  on_macos do
+    if Hardware::CPU.arm?
+      url "https://github.com/yugo-ibuki/tool-name/releases/download/v1.0.0/tool-name-darwin-arm64.tar.gz"
+      sha256 "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    else
+      url "https://github.com/yugo-ibuki/tool-name/releases/download/v1.0.0/tool-name-darwin-amd64.tar.gz"
+      sha256 "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+    end
+  end
 
-     def install
-       bin.install "tool-name"
-     end
-   end
+  def install
+    bin.install "tool-name"
+  end
+end
    ```
 
 2. **GitHub Releasesでビルド済みバイナリを配布**
@@ -460,8 +460,8 @@ vim Formula/dot-claude-sync.rb
 class DotClaudeSync < Formula
   desc "Synchronize .claude directories across multiple projects"
   homepage "https://github.com/yugo-ibuki/dot-claude-sync"
-  url "https://github.com/yugo-ibuki/dot-claude-sync/archive/refs/tags/v0.1.4.tar.gz"  # ← バージョン変更
-  sha256 "新しいハッシュ値"  # ← 新しいSHA256に変更
+  url "https://github.com/yugo-ibuki/dot-claude-sync/archive/refs/tags/v0.1.4.tar.gz" # ← バージョン変更
+  sha256 "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" # ← 新しいSHA256に変更
   license "MIT"
 
   depends_on "go" => :build
