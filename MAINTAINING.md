@@ -408,6 +408,43 @@ git push
 
 ## 既存ツールの更新
 
+### デプロイ手順（クイックリファレンス）
+
+ツールの新バージョンをリリース済みの場合、以下の手順でFormulaを更新・デプロイします：
+
+```bash
+# 1. 新しいバージョンのSHA256ハッシュを取得
+curl -sL "https://github.com/yugo-ibuki/TOOL_NAME/archive/refs/tags/vX.Y.Z.tar.gz" | shasum -a 256
+
+# 2. Formulaファイルを編集（urlとsha256を更新）
+vim Formula/TOOL_NAME.rb
+
+# 3. 監査を実行
+brew audit --strict TOOL_NAME
+
+# 4. ローカルで動作確認
+brew uninstall TOOL_NAME
+brew install --build-from-source TOOL_NAME
+TOOL_NAME --version
+
+# 5. コミット & プッシュ
+git add Formula/TOOL_NAME.rb
+git commit -m "Update TOOL_NAME to vX.Y.Z
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+git push origin main
+
+# 6. tapを更新してインストール確認
+brew update
+brew upgrade TOOL_NAME
+```
+
+**重要**: SHA256ハッシュは必ず`curl | shasum`で取得すること。Formula内のURLと完全に一致する必要があります。
+
+---
+
 ### 完全なワークフロー
 
 例：`dot-claude-sync` を v0.1.3 → v0.1.4 に更新
