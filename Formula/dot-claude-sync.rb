@@ -1,8 +1,8 @@
 class DotClaudeSync < Formula
   desc "Synchronize .claude directories across multiple projects"
   homepage "https://github.com/yugo-ibuki/dot-claude-sync"
-  url "https://github.com/yugo-ibuki/dot-claude-sync/archive/refs/tags/v0.2.1.tar.gz"
-  sha256 "187207aafa9ae23218d5398e48614110cd5d0c51af4dc8c6d16336864273d3eb"
+  url "https://github.com/yugo-ibuki/dot-claude-sync/archive/refs/tags/v0.3.0.tar.gz"
+  sha256 "169d4ed714d2b9459ffb7659b6953f827fa8d01d1b85814054151630ebbf9a92"
   license "MIT"
 
   depends_on "go" => :build
