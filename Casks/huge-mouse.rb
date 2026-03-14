@@ -12,6 +12,6 @@ cask "huge-mouse" do
   zap trash: [
     "~/Library/Application Support/huge-mouse",
     "~/Library/Preferences/com.yugo-ibuki.huge-mouse.plist",
-    "~/Library/Saved Application State/com.yugo-ibuki.huge-mouse.savedState"
+    "~/Library/Saved Application State/com.yugo-ibuki.huge-mouse.savedState",
   ]
 end
