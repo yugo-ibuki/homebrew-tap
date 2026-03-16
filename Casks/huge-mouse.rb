@@ -1,6 +1,6 @@
 cask "huge-mouse" do
-  version "0.1.5"
-  sha256 "97d0b51cfa75d0a61dd1319239cc127d4be0f8f967ea0472b89433174c151996"
+  version "0.1.6"
+  sha256 "2fbf0656380182ca7ff5def2eab5209564e86d2e993baef77d2682be5c3ce250"
 
   url "https://github.com/yugo-ibuki/huge-mouse/releases/download/v#{version}/huge-mouse-#{version}.dmg"
   name "Huge Mouse"
