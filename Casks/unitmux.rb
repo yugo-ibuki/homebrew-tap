@@ -1,6 +1,6 @@
 cask "unitmux" do
-  version "0.4.0"
-  sha256 "a2bbc0d38f613f019aa078212055f57ee713e891abe320de826d5ec551e506eb"
+  version "0.4.1"
+  sha256 "97e2be4beed1458bafce494ffc51b308729406b27a5fb7d7c4ba75c362718a63"
 
   url "https://github.com/yugo-ibuki/unitmux/releases/download/v#{version}/unitmux-#{version}.dmg"
   name "Unitmux"
